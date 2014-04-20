@@ -1,4 +1,4 @@
-<?php namespace Atyagi\LaravelAwsSsh;
+<?php namespace Atyagi\LaravelAwsSsh\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -38,7 +38,7 @@ class LaravelAwsSshServiceProvider extends ServiceProvider {
 	 */
 	public function provides()
 	{
-		return array();
+		return array('aws_ssh');
 	}
 
 }
