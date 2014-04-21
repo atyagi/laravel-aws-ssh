@@ -5,6 +5,7 @@ use Atyagi\LaravelAwsSsh\Commands\EC2TailCommand;
 use Atyagi\LaravelAwsSsh\Commands\ElasticBeanstalkTailCommand;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
+use Aws\Common\Aws as ProvidedAWS;
 
 class LaravelAwsSshServiceProvider extends ServiceProvider {
 
@@ -34,23 +35,35 @@ class LaravelAwsSshServiceProvider extends ServiceProvider {
 	{
         $this->app['command.eb.tail'] = $this->app->share(function($app)
         {
-            $accessKey = $this->app->make('config')->get('laravel-aws-ssh::aws.access_key');
-            $secretKey = $this->app->make('config')->get('laravel-aws-ssh::aws.secret_key');
-            $region = $this->app->make('config')->get('laravel-aws-ssh::aws.region', 'us-east-1');
-            $aws = new AWS($accessKey, $secretKey, $region);
+            $providedAws = $this->createProvidedAws();
+            $aws = new AWS($providedAws);
             return new ElasticBeanstalkTailCommand($app, $aws);
         });
         $this->commands('command.eb.tail');
         $this->app['command.ec2.tail'] = $this->app->share(function($app)
         {
-            $accessKey = $this->app->make('config')->get('laravel-aws-ssh::aws.access_key');
-            $secretKey = $this->app->make('config')->get('laravel-aws-ssh::aws.secret_key');
-            $region = $this->app->make('config')->get('laravel-aws-ssh::aws.region', 'us-east-1');
-            $aws = new AWS($accessKey, $secretKey, $region);
+            $providedAws = $this->createProvidedAws();
+            $aws = new AWS($providedAws);
             return new EC2TailCommand($app, $aws);
         });
         $this->commands('command.ec2.tail');
 	}
+
+    private function createProvidedAws()
+    {
+        $accessKey = $this->app->make('config')->get('laravel-aws-ssh::aws.access_key');
+        $secretKey = $this->app->make('config')->get('laravel-aws-ssh::aws.secret_key');
+        $region = $this->app->make('config')->get('laravel-aws-ssh::aws.region', 'us-east-1');
+        $providedAws = ProvidedAWS::factory(
+            array(
+                'key' => $accessKey,
+                'secret' => $secretKey,
+                'region' => $region,
+            )
+        );
+
+        return $providedAws;
+    }
 
 	/**
 	 * Get the services provided by the provider.
@@ -59,7 +72,7 @@ class LaravelAwsSshServiceProvider extends ServiceProvider {
 	 */
 	public function provides()
 	{
-		return array('aws_ssh');
+		return array();
 	}
 
 }

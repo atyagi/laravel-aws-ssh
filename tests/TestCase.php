@@ -8,12 +8,12 @@ class TestCase extends PHPUnit_Framework_TestCase {
 
     public function setUp()
     {
-        $this->mockApp = m::mock('Illuminate/Foundation/Application');
+        $this->mockApp = m::mock('Illuminate\Foundation\Application');
     }
 
     public function tearDown()
     {
-
+        m::close();
     }
 
 } 
