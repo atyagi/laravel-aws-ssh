@@ -18,10 +18,9 @@
          "mockery/mockery": "dev-master"
 	 },
     "autoload": {
-        "classmap": [],
         "psr-0": {
             "Atyagi\\LaravelAwsSsh\\": "src/"
         }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "dev"
 }
