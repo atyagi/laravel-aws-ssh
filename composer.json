@@ -15,6 +15,7 @@
     },
 	 "require-dev": {
          "phpunit/phpunit": "4.0.*",
+         "illuminate/remote": "4.1.*",
          "mockery/mockery": "dev-master"
 	 },
     "autoload": {
