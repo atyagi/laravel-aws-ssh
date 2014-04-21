@@ -17,7 +17,8 @@
          "phpunit/phpunit": "4.0.*",
          "illuminate/remote": "4.1.*",
          "illuminate/console": "4.1.*",
-         "mockery/mockery": "dev-master"
+         "mockery/mockery": "dev-master",
+         "satooshi/php-coveralls": "dev-master"
 	 },
     "autoload": {
         "psr-0": {
