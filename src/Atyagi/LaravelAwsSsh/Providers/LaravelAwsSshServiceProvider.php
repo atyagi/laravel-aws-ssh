@@ -23,7 +23,9 @@ class LaravelAwsSshServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('atyagi/laravel-aws-ssh');
+        $namespace = 'laravel-aws-ssh';
+        $path = __DIR__ . '/../../..';
+		$this->package('atyagi/laravel-aws-ssh', $namespace, $path);
 	}
 
 	/**

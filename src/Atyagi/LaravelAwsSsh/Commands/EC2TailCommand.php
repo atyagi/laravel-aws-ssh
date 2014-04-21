@@ -47,8 +47,8 @@ class EC2TailCommand extends Command {
         $defaults = $this->app->make('config')->get('laravel-aws-ssh::ssh_defaults');
 
         return array(
-            array(self::USER, InputOption::VALUE_OPTIONAL, 'The user for SSH', $defaults['default_user']),
-            array(self::KEY_FILE, InputOption::VALUE_OPTIONAL, 'The location of the key file', $defaults['default_key_path']),
+            array(self::USER, 'u' ,InputOption::VALUE_OPTIONAL, 'The user for SSH', $defaults['default_user']),
+            array(self::KEY_FILE, null, InputOption::VALUE_OPTIONAL, 'The location of the key file', $defaults['default_key_path']),
         );
     }
 
