@@ -33,7 +33,7 @@ class EC2TailCommandControllerTest extends TestCase {
 
         $this->mockAws
             ->shouldReceive('getPublicDNSFromInstanceId')
-            ->with(array_get($arguments, EC2TailCommand::INSTANCE_ID))
+            ->with(array_get($arguments, CommandRules::INSTANCE_ID))
             ->andReturnNull();
 
         $this->mockCommand
@@ -56,32 +56,35 @@ class EC2TailCommandControllerTest extends TestCase {
 
         $this->mockAws
             ->shouldReceive('getPublicDNSFromInstanceId')
-            ->with(array_get($arguments, EC2TailCommand::INSTANCE_ID))
+            ->with(array_get($arguments, CommandRules::INSTANCE_ID))
             ->andReturn('127.0.0.1');
 
         $this->mockConnectionManager
             ->shouldReceive('createConnection')
             ->withArgs(array(
-                array_get($arguments, EC2TailCommand::INSTANCE_ID),
+                array_get($arguments, CommandRules::INSTANCE_ID),
                 '127.0.0.1',
-                array_get($options, EC2TailCommand::USER),
-                array_get($options, EC2TailCommand::KEY_FILE)
+                array_get($options, CommandRules::USER),
+                array_get($options, CommandRules::KEY_FILE)
             ))
             ->andReturn($mockConnection);
 
         $this->controller->fire($arguments, $options);
     }
 
+
+    /* ------ Private Test Helpers -------- */
+
     private function createArgumentsAndOptions()
     {
         return array(
             array(
-                EC2TailCommand::INSTANCE_ID => 'test-id',
-                EC2TailCommand::LOGFILE => 'test-file',
+                CommandRules::INSTANCE_ID => 'test-id',
+                CommandRules::LOGFILE => 'test-file',
             ),
             array(
-                EC2TailCommand::USER => 'test-user',
-                EC2TailCommand::KEY_FILE => 'test-key',
+                CommandRules::USER => 'test-user',
+                CommandRules::KEY_FILE => 'test-key',
             )
         );
     }

@@ -27,11 +27,11 @@ class EC2TailCommandController {
 
     public function fire($arguments, $options)
     {
-        $instanceId = array_get($arguments, EC2TailCommand::INSTANCE_ID);
-        $logFile = array_get($arguments, EC2TailCommand::LOGFILE);
+        $instanceId = array_get($arguments, CommandRules::INSTANCE_ID);
+        $logFile = array_get($arguments, CommandRules::LOGFILE);
 
-        $user = array_get($options, EC2TailCommand::USER);
-        $keyFile = array_get($options, EC2TailCommand::KEY_FILE);
+        $user = array_get($options, CommandRules::USER);
+        $keyFile = array_get($options, CommandRules::KEY_FILE);
 
         $host = $this->aws->getPublicDNSFromInstanceId($instanceId);
 
