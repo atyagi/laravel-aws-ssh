@@ -37,14 +37,6 @@ class ElasticBeanstalkTailCommand extends Command {
 
     public function fire()
     {
-        $arguments = $this->argument();
-
-        if(isset($arguments['app']) && isset($arguments['env'])) {
-
-        } else {
-            $this->error('Error: app and env are not set. Please set them');
-        }
-
 
     }
 

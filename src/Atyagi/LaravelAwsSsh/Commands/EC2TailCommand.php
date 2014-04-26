@@ -1,11 +1,13 @@
 <?php namespace Atyagi\LaravelAwsSsh\Commands;
 
 use Atyagi\LaravelAwsSsh\AWS;
+use Atyagi\LaravelAwsSsh\ConnectionManager;
+use Atyagi\LaravelAwsSsh\EC2TailCommandController;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Application;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Illuminate\Remote\Connection;
+
 
 class EC2TailCommand extends Command {
 
@@ -17,14 +19,10 @@ class EC2TailCommand extends Command {
     const USER = 'user';
     const KEY_FILE = 'keyFile';
 
-    /**
-     * @var Application
-     */
+    /** @var Application */
     protected $app;
 
-    /**
-     * @var AWS
-     */
+    /** @var AWS */
     protected $aws;
 
     public function __construct(Application $app, AWS $aws)
@@ -38,7 +36,7 @@ class EC2TailCommand extends Command {
     {
         return array(
             array(self::INSTANCE_ID, InputArgument::REQUIRED, 'The EC2 instance ID where log files exist'),
-            array(self::LOGFILE, InputArgument::REQUIRED, 'The location of the log file'),
+            array(self::LOGFILE, InputArgument::REQUIRED, 'The absolute path of the log file'),
         );
     }
 
@@ -54,28 +52,9 @@ class EC2TailCommand extends Command {
 
     public function fire()
     {
-        $instanceId = $this->argument(self::INSTANCE_ID);
-        $logFile = $this->argument(self::LOGFILE);
-
-        $user = $this->option(self::USER);
-        $keyFile = $this->option(self::KEY_FILE);
-
-        $host = $this->aws->getPublicDNSFromInstanceId($instanceId);
-
-        if(is_null($host)) {
-            $this->error('Error: Could not find Host from Instance ID. Please try again.');
-        } else {
-            $connection = new Connection($instanceId, $host, $user, array(
-                'key' => $keyFile,
-                'keyphrase' => '',
-            ));
-
-            $connection->run(array(
-               'tail -f ' . $logFile
-            ), function($line) {
-                $this->info($line);
-            });
-        }
+        $controller = new EC2TailCommandController($this->app, $this->aws,
+            $this, new ConnectionManager());
+        $controller->fire($this->argument(), $this->option());
     }
 
 

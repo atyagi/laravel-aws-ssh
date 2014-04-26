@@ -75,6 +75,9 @@ class AWSTest extends TestCase {
         $this->assertNull($dns);
     }
 
+
+    /* ------ Private Test Helpers -------- */
+
     private function setExpectationsForMockEc2($array)
     {
         $this->mockEc2->shouldReceive('describeInstances')
