@@ -6,12 +6,12 @@ use Mockery as m;
 
 class AWSTest extends TestCase {
 
+    /** @var m\Mock */
     protected $mockProvidedAws;
+    /** @var m\Mock */
     protected $mockEc2;
 
-    /**
-     * @var AWS
-     */
+    /** @var AWS */
     protected $aws;
 
     public function setUp()
@@ -75,14 +75,59 @@ class AWSTest extends TestCase {
         $this->assertNull($dns);
     }
 
+    public function testGetPublicDNSFromEBNameReturnsString()
+    {
+        $this->setExpectationsForMockEc2(array(
+            'Reservations' => array(
+                0 => array(
+                    'Instances' => array(
+                        0 => array(
+                            'PublicDnsName' => '127.0.0.1'
+                        )
+                    )
+                )
+            )
+        ));
+        $dns = $this->aws->getPublicDNSFromEBEnvironmentName('test-id');
+        $this->assertEquals('127.0.0.1', $dns);
+    }
 
+    public function testGetPublicDNSFromEBNameReturnsNullWithEmptyArray()
+    {
+        $this->setExpectationsForMockEc2(array());
+        $dns = $this->aws->getPublicDNSFromEBEnvironmentName('test-id');
+        $this->assertNull($dns);
+    }
+
+    public function testGetPublicDNSFromEBNameReturnsNullWithEmptyReservations()
+    {
+        $this->setExpectationsForMockEc2(array(
+            'Reservations' => array()
+        ));
+        $dns = $this->aws->getPublicDNSFromEBEnvironmentName('test-id');
+        $this->assertNull($dns);
+    }
+
+    public function testGetPublicDNSFromEBNameReturnsNullWithEmptyInstances()
+    {
+        $this->setExpectationsForMockEc2(array(
+            'Reservations' => array(
+                0 => array(
+                    'Instances' => array()
+                )
+            )
+        ));
+        $dns = $this->aws->getPublicDNSFromEBEnvironmentName('test-id');
+        $this->assertNull($dns);
+    }
     /* ------ Private Test Helpers -------- */
 
     private function setExpectationsForMockEc2($array)
     {
         $this->mockEc2->shouldReceive('describeInstances')
             ->withAnyArgs()
-            ->andReturn(new GuzzleModel($array));
+            ->andReturn(new GuzzleModel($array))
+            ->once();
     }
 
 } 
