@@ -1,5 +1,6 @@
 <?php namespace Atyagi\LaravelAwsSsh;
 
+use Atyagi\LaravelAwsSsh\ConnectionFactory;
 use Illuminate\Foundation\Application;
 use Illuminate\Console\Command;
 
@@ -14,15 +15,16 @@ class ElasticBeanstalkTailCommandController {
     /** @var Command */
     protected $command;
 
-    protected $connectionManager;
+    /** @var ConnectionFactory */
+    protected $connectionFactory;
 
     public function __construct(Application $app, AWS $aws, Command $command,
-                                ConnectionManager $connectionManager)
+                                ConnectionFactory $connectionFactory)
     {
         $this->app = $app;
         $this->aws = $aws;
         $this->command = $command;
-        $this->connectionManager = $connectionManager;
+        $this->connectionFactory = $connectionFactory;
     }
 
     public function fire($arguments, $options)
@@ -33,12 +35,23 @@ class ElasticBeanstalkTailCommandController {
         $user = array_get($options, CommandRules::USER);
         $keyFile = array_get($options, CommandRules::KEY_FILE);
 
-        $host = $this->aws->getPublicDNSFromEBEnvironmentName($envName);
+        $hosts = $this->aws->getPublicDNSFromEBEnvironmentName($envName);
 
-        if(is_null($host)) {
+        if(count($hosts) === 0) {
             $this->command->error('Error: Could not find instances associated with environment');
         } else {
-
+            $connections = array();
+            foreach($hosts as $host) {
+                $connections[] = $this->connectionFactory->
+                    createConnection($host, $host, $user, $keyFile);
+            }
+            foreach($connections as $connection) {
+                $connection->run(array(
+                   'tail -f ' . $logFile
+                ), function($line) {
+                    $this->command->info($line);
+                });
+            }
         }
 
     }

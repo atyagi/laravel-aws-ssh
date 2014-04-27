@@ -2,7 +2,7 @@
 
 use Atyagi\LaravelAwsSsh\AWS;
 use Atyagi\LaravelAwsSsh\CommandRules;
-use Atyagi\LaravelAwsSsh\ConnectionManager;
+use Atyagi\LaravelAwsSsh\ConnectionFactory;
 use Atyagi\LaravelAwsSsh\ElasticBeanstalkTailCommandController;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Application;
@@ -37,13 +37,14 @@ class ElasticBeanstalkTailCommand extends Command {
 
     protected function getOptions()
     {
-        return CommandRules::getElasticBeanstalkTailCommandOptions();
+        $defaults = $this->app->make('config')->get('laravel-aws-ssh::ssh_defaults');
+        return CommandRules::getElasticBeanstalkTailCommandOptions($defaults);
     }
 
     public function fire()
     {
         $controller = new ElasticBeanstalkTailCommandController($this->app, $this->aws,
-            $this, new ConnectionManager());
+            $this, new ConnectionFactory());
         $controller->fire($this->argument(), $this->option());
     }
 

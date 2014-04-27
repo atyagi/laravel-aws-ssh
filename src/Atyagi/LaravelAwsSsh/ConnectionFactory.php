@@ -2,7 +2,7 @@
 
 use Illuminate\Remote\Connection;
 
-class ConnectionManager {
+class ConnectionFactory {
 
     public function createConnection($instanceId, $host, $user, $keyFile)
     {

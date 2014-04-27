@@ -2,7 +2,7 @@
 
 use Atyagi\LaravelAwsSsh\AWS;
 use Atyagi\LaravelAwsSsh\CommandRules;
-use Atyagi\LaravelAwsSsh\ConnectionManager;
+use Atyagi\LaravelAwsSsh\ConnectionFactory;
 use Atyagi\LaravelAwsSsh\EC2TailCommandController;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Application;
@@ -39,7 +39,7 @@ class EC2TailCommand extends Command {
     public function fire()
     {
         $controller = new EC2TailCommandController($this->app, $this->aws,
-            $this, new ConnectionManager());
+            $this, new ConnectionFactory());
         $controller->fire($this->argument(), $this->option());
     }
 

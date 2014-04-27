@@ -15,15 +15,16 @@ class EC2TailCommandController {
     /** @var Command */
     protected $command;
 
-    protected $connectionManager;
+    /** @var ConnectionFactory */
+    protected $connectionFactory;
 
     public function __construct(Application $app, AWS $aws, Command $command,
-                                ConnectionManager $connectionManager)
+                                ConnectionFactory $connectionFactory)
     {
         $this->app = $app;
         $this->aws = $aws;
         $this->command = $command;
-        $this->connectionManager = $connectionManager;
+        $this->connectionFactory = $connectionFactory;
     }
 
     public function fire($arguments, $options)
@@ -39,7 +40,7 @@ class EC2TailCommandController {
         if(is_null($host)) {
            $this->command->error('Error: Could not find Host from Instance ID. Please try again.');
         } else {
-            $connection = $this->connectionManager->
+            $connection = $this->connectionFactory->
                 createConnection($instanceId, $host, $user, $keyFile);
 
             $connection->run(array(
