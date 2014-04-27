@@ -13,6 +13,7 @@ class CommandRulesTest extends TestCase {
 
         $this->assertEquals(CommandRules::INSTANCE_ID, $args[0][0]);
         $this->assertEquals(InputArgument::REQUIRED, $args[0][1]);
+
         $this->assertEquals(CommandRules::LOGFILE, $args[1][0]);
         $this->assertEquals(InputArgument::REQUIRED, $args[1][1]);
     }
@@ -37,4 +38,34 @@ class CommandRulesTest extends TestCase {
         $this->assertEquals($defaults['default_key_path'], $options[1][4]);
     }
 
-} 
+    public function testElasticBeanstalkTailCommandArguments()
+    {
+        $args = CommandRules::getElasticBeanstalkTailCommandArguments();
+
+        $this->assertEquals(CommandRules::ENV, $args[0][0]);
+        $this->assertEquals(InputArgument::REQUIRED, $args[0][1]);
+
+        $this->assertEquals(CommandRules::LOGFILE, $args[1][0]);
+        $this->assertEquals(InputArgument::REQUIRED, $args[1][1]);
+    }
+
+    public function testElasticBeanstalkTailCommandOptions()
+    {
+        $defaults = array(
+            'default_user' => 'test-user',
+            'default_key_path' => 'test-path',
+        );
+
+        $options = CommandRules::getElasticBeanstalkTailCommandOptions($defaults);
+
+        $this->assertEquals(CommandRules::USER, $options[0][0]);
+        $this->assertEquals('u', $options[0][1]);
+        $this->assertEquals(InputOption::VALUE_OPTIONAL, $options[0][2]);
+        $this->assertEquals($defaults['default_user'], $options[0][4]);
+
+        $this->assertEquals(CommandRules::KEY_FILE, $options[1][0]);
+        $this->assertNull($options[1][1]);
+        $this->assertEquals(InputOption::VALUE_OPTIONAL, $options[1][2]);
+        $this->assertEquals($defaults['default_key_path'], $options[1][4]);
+    }
+}

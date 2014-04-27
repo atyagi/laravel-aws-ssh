@@ -27,7 +27,17 @@ class AWS {
             'InstanceIds' => array($instanceId)
         ));
 
-        return $this->returnDNSFromResponse($result);
+        //ugh, no dot notation checks
+        $reservations = $result->get('Reservations', array());
+        if(count($reservations) > 0) {
+            $reservation = $reservations[0];
+            if(isset($reservation['Instances']) && count($reservation['Instances']) > 0) {
+                $instance = $reservation['Instances'][0];
+                return $instance['PublicDnsName'];
+            }
+        }
+
+        return null;
     }
 
     public function getPublicDNSFromEBEnvironmentName($envName)
@@ -48,23 +58,21 @@ class AWS {
             )
         );
 
-        return $this->returnDNSFromResponse($result);
-    }
-
-    private function returnDNSFromResponse($response)
-    {
+        $dnsArray = array();
         //ugh, no dot notation checks
-        $reservations = $response->get('Reservations', array());
+        $reservations = $result->get('Reservations', array());
         if(count($reservations) > 0) {
-            $reservation = $reservations[0];
-            if(isset($reservation['Instances']) && count($reservation['Instances']) > 0) {
-                $instance = $reservation['Instances'][0];
-                return $instance['PublicDnsName'];
+            foreach($reservations as $reservation) {
+                if(isset($reservation['Instances']) && count($reservation['Instances']) > 0) {
+                    $instance = $reservation['Instances'][0];
+                    $dnsArray[] = $instance['PublicDnsName'];
+                }
             }
         }
 
-        return null;
+        return $dnsArray;
     }
+
 
 
 } 

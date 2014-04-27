@@ -11,6 +11,9 @@ class CommandRules {
     const USER = 'user';
     const KEY_FILE = 'keyFile';
 
+    const APP = 'app';
+    const ENV = 'env';
+
     public static function getEC2TailCommandArguments()
     {
         return array(
@@ -29,6 +32,21 @@ class CommandRules {
             array(self::KEY_FILE, null, InputOption::VALUE_OPTIONAL,
                 'The location of the key file', array_get($defaults, 'default_key_path')),
         );
+    }
+
+    public static function getElasticBeanstalkTailCommandArguments()
+    {
+        return array(
+            array(self::ENV, InputArgument::REQUIRED,
+                'The ElasticBeanstalk Application Environment to tail'),
+            array(self::LOGFILE, InputArgument::REQUIRED,
+                'The absolute path of the log file'),
+        );
+    }
+
+    public static function getElasticBeanstalkTailCommandOptions(array $defaults)
+    {
+        return static::getEC2TailCommandOptions($defaults);
     }
 
 } 

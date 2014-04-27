@@ -17,7 +17,8 @@ class EC2TailCommandController {
 
     protected $connectionManager;
 
-    public function __construct(Application $app, AWS $aws, Command $command, ConnectionManager $connectionManager)
+    public function __construct(Application $app, AWS $aws, Command $command,
+                                ConnectionManager $connectionManager)
     {
         $this->app = $app;
         $this->aws = $aws;
