@@ -1,30 +1,21 @@
 <?php namespace Atyagi\LaravelAwsSsh\Commands;
 
 use Atyagi\LaravelAwsSsh\AWS;
+use Atyagi\LaravelAwsSsh\CommandRules;
+use Atyagi\LaravelAwsSsh\ConnectionFactory;
+use Atyagi\LaravelAwsSsh\EC2TailCommandController;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Application;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Illuminate\Remote\Connection;
 
 class EC2TailCommand extends Command {
 
     protected $name = 'ec2:tail';
     protected $description = 'Tails the logs of a specific EC2 Instance';
 
-    const INSTANCE_ID = 'instanceId';
-    const LOGFILE = 'logFile';
-    const USER = 'user';
-    const KEY_FILE = 'keyFile';
-
-    /**
-     * @var Application
-     */
+    /** @var Application */
     protected $app;
 
-    /**
-     * @var AWS
-     */
+    /** @var AWS */
     protected $aws;
 
     public function __construct(Application $app, AWS $aws)
@@ -36,46 +27,20 @@ class EC2TailCommand extends Command {
 
     protected function getArguments()
     {
-        return array(
-            array(self::INSTANCE_ID, InputArgument::REQUIRED, 'The EC2 instance ID where log files exist'),
-            array(self::LOGFILE, InputArgument::REQUIRED, 'The location of the log file'),
-        );
+        return CommandRules::getEC2TailCommandArguments();
     }
 
     protected function getOptions()
     {
         $defaults = $this->app->make('config')->get('laravel-aws-ssh::ssh_defaults');
-
-        return array(
-            array(self::USER, 'u' ,InputOption::VALUE_OPTIONAL, 'The user for SSH', $defaults['default_user']),
-            array(self::KEY_FILE, null, InputOption::VALUE_OPTIONAL, 'The location of the key file', $defaults['default_key_path']),
-        );
+        return CommandRules::getEC2TailCommandOptions($defaults);
     }
 
     public function fire()
     {
-        $instanceId = $this->argument(self::INSTANCE_ID);
-        $logFile = $this->argument(self::LOGFILE);
-
-        $user = $this->option(self::USER);
-        $keyFile = $this->option(self::KEY_FILE);
-
-        $host = $this->aws->getPublicDNSFromInstanceId($instanceId);
-
-        if(is_null($host)) {
-            $this->error('Error: Could not find Host from Instance ID. Please try again.');
-        } else {
-            $connection = new Connection($instanceId, $host, $user, array(
-                'key' => $keyFile,
-                'keyphrase' => '',
-            ));
-
-            $connection->run(array(
-               'tail -f ' . $logFile
-            ), function($line) {
-                $this->info($line);
-            });
-        }
+        $controller = new EC2TailCommandController($this->app, $this->aws,
+            $this, new ConnectionFactory());
+        $controller->fire($this->argument(), $this->option());
     }
 
 

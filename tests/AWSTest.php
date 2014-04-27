@@ -6,12 +6,12 @@ use Mockery as m;
 
 class AWSTest extends TestCase {
 
+    /** @var m\Mock */
     protected $mockProvidedAws;
+    /** @var m\Mock */
     protected $mockEc2;
 
-    /**
-     * @var AWS
-     */
+    /** @var AWS */
     protected $aws;
 
     public function setUp()
@@ -75,11 +75,87 @@ class AWSTest extends TestCase {
         $this->assertNull($dns);
     }
 
+    public function testGetPublicDNSFromEBNameReturnsOneInstance()
+    {
+        $this->setExpectationsForMockEc2(array(
+            'Reservations' => array(
+                0 => array(
+                    'Instances' => array(
+                        0 => array(
+                            'PublicDnsName' => '127.0.0.1'
+                        )
+                    )
+                )
+            )
+        ));
+        $dnsArray = $this->aws->getPublicDNSFromEBEnvironmentName('test-id');
+        $this->assertCount(1, $dnsArray);
+        $this->assertEquals('127.0.0.1', $dnsArray[0]);
+    }
+
+    public function testGetPublicDNSFromEBNameReturnsMultipleInstances()
+    {
+        $this->setExpectationsForMockEc2(array(
+            'Reservations' => array(
+                0 => array(
+                    'Instances' => array(
+                        0 => array(
+                            'PublicDnsName' => '127.0.0.1'
+                        )
+                    )
+                ),
+                1 => array(
+                    'Instances' => array(
+                        0 => array(
+                            'PublicDnsName' => '127.0.0.2'
+                        )
+                    )
+                ),
+            )
+        ));
+        $dnsArray = $this->aws->getPublicDNSFromEBEnvironmentName('test-id');
+        $this->assertCount(2, $dnsArray);
+        $this->assertEquals('127.0.0.1', $dnsArray[0]);
+        $this->assertEquals('127.0.0.2', $dnsArray[1]);
+    }
+
+    public function testGetPublicDNSFromEBNameReturnsNullWithEmptyArray()
+    {
+        $this->setExpectationsForMockEc2(array());
+        $dnsArray = $this->aws->getPublicDNSFromEBEnvironmentName('test-id');
+        $this->assertEmpty($dnsArray);
+    }
+
+    public function testGetPublicDNSFromEBNameReturnsNullWithEmptyReservations()
+    {
+        $this->setExpectationsForMockEc2(array(
+            'Reservations' => array()
+        ));
+        $dnsArray = $this->aws->getPublicDNSFromEBEnvironmentName('test-id');
+        $this->assertEmpty($dnsArray);
+    }
+
+    public function testGetPublicDNSFromEBNameReturnsNullWithEmptyInstances()
+    {
+        $this->setExpectationsForMockEc2(array(
+            'Reservations' => array(
+                0 => array(
+                    'Instances' => array()
+                )
+            )
+        ));
+        $dnsArray = $this->aws->getPublicDNSFromEBEnvironmentName('test-id');
+        $this->assertEmpty($dnsArray);
+    }
+
+    /* ------ Private Test Helpers -------- */
+
     private function setExpectationsForMockEc2($array)
     {
         $this->mockEc2->shouldReceive('describeInstances')
             ->withAnyArgs()
-            ->andReturn(new GuzzleModel($array));
+            ->andReturn(new GuzzleModel($array))
+            ->once();
     }
 
 } 

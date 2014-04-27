@@ -30,25 +30,6 @@ return array(
         'default_key_path' => '',
     ),
 
-    /*
-	|--------------------------------------------------------------------------
-	| AWS Elastic Beanstalk Applications
-	|--------------------------------------------------------------------------
-	|
-    | These are the Elastic Beanstalk applications that you will use to connect
-    | and tail from the backing EC2 instances
-    |
-    | Example:
-    | 'applications' => array(
-    |     '<EB_APP_NAME> => array(
-    |         '[ENVIRONMENT_NAMES]
-    |     )
-    | )
-    |
-	*/
-    'applications' => array(
-
-    ),
 
 );
  

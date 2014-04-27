@@ -1,6 +1,9 @@
 <?php namespace Atyagi\LaravelAwsSsh\Commands;
 
 use Atyagi\LaravelAwsSsh\AWS;
+use Atyagi\LaravelAwsSsh\CommandRules;
+use Atyagi\LaravelAwsSsh\ConnectionFactory;
+use Atyagi\LaravelAwsSsh\ElasticBeanstalkTailCommandController;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Application;
 use Symfony\Component\Console\Input\InputArgument;
@@ -29,23 +32,20 @@ class ElasticBeanstalkTailCommand extends Command {
 
     protected function getArguments()
     {
-        return array(
-            array('app', InputArgument::REQUIRED, 'The ElasticBeanstalk Application to tail'),
-            array('env', InputArgument::REQUIRED, 'The application\'s environment to tail'),
-        );
+        return CommandRules::getElasticBeanstalkTailCommandArguments();
+    }
+
+    protected function getOptions()
+    {
+        $defaults = $this->app->make('config')->get('laravel-aws-ssh::ssh_defaults');
+        return CommandRules::getElasticBeanstalkTailCommandOptions($defaults);
     }
 
     public function fire()
     {
-        $arguments = $this->argument();
-
-        if(isset($arguments['app']) && isset($arguments['env'])) {
-
-        } else {
-            $this->error('Error: app and env are not set. Please set them');
-        }
-
-
+        $controller = new ElasticBeanstalkTailCommandController($this->app, $this->aws,
+            $this, new ConnectionFactory());
+        $controller->fire($this->argument(), $this->option());
     }
 
 

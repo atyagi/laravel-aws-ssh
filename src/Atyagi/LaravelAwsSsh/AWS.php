@@ -40,6 +40,39 @@ class AWS {
         return null;
     }
 
+    public function getPublicDNSFromEBEnvironmentName($envName)
+    {
+        $ec2Client = $this->providedAws->get('ec2');
+        $result = $ec2Client->describeInstances(
+            array(
+                'Filters' => array(
+                    array(
+                        'Name' => 'tag-key',
+                        'Values' => array('elasticbeanstalk:environment-name')
+                    ),
+                    array(
+                        'Name' => 'tag-value',
+                        'Values' => array($envName)
+                    )
+                )
+            )
+        );
+
+        $dnsArray = array();
+        //ugh, no dot notation checks
+        $reservations = $result->get('Reservations', array());
+        if(count($reservations) > 0) {
+            foreach($reservations as $reservation) {
+                if(isset($reservation['Instances']) && count($reservation['Instances']) > 0) {
+                    $instance = $reservation['Instances'][0];
+                    $dnsArray[] = $instance['PublicDnsName'];
+                }
+            }
+        }
+
+        return $dnsArray;
+    }
+
 
 
 } 
